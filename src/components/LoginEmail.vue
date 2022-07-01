@@ -32,6 +32,8 @@ export default {
             })
             .catch((error) => {
                 console.log(error);
+                alert("Please try again with correct email");
+                this.email = "";
             });
         }
     }

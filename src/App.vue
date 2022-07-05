@@ -1,25 +1,41 @@
 <template>
-<div class="center-div">
-  <h2>Login</h2>
+<div class="center-div" v-if="isLoading">
+  <h2 v-if="!isLoggedIn">Login</h2>
   <img src="./assets/logo.png" alt="company-logo" />
-  <LoginUser v-if="isAdmin" />
+  <Homepage v-if="isLoggedIn" @logout="isLoggedIn = false" /> 
+  <LoginUser v-else-if="isAdmin" @login="loggedIn"/>
   <LoginEmail v-else />
+</div>
+<div v-else>
+  <img src="./assets/load.gif" alt="Loading..." />
 </div>
 </template>
 
 <script>
 import LoginEmail from "./components/LoginEmail"
 import LoginUser from "./components/LoginUser"
-
+import Homepage from "./components/Homepage"
+import axios from "axios"
 export default {
   name: 'App',
   components: {
     LoginEmail,
     LoginUser,
+    Homepage,
+  },
+  mounted() {
+    let data = JSON.parse(localStorage.getItem('data'));
+    if(data && data.auth_token){
+      this.checkLogin(data);
+    }else{
+      this.isLoading = true;
+    }
   },
   data(){
     return {
       isAdmin: false,
+      isLoggedIn: false,
+      isLoading: false,
     }
   },
   provide() {
@@ -30,6 +46,23 @@ export default {
   methods: {
     adminLogin(){
       this.isAdmin = true;
+    },
+    checkLogin(data) {
+      const url = `https://wizapp.in/RestMirrorService/api/V1/ValidateToken`;
+      const params = {
+          cDeviceid: data.deviceId,
+          cAuthToken: data.auth_token,
+          GroupCode: data.GroupCode,
+      }
+      axios.get(url, {params})
+      .then(() => {
+          this.isLoggedIn = true;
+          this.isLoading = true;
+      })
+    },
+    loggedIn(){
+      this.isAdmin = false;
+      this.isLoggedIn = true;
     }
   }
 }

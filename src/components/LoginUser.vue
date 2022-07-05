@@ -33,6 +33,7 @@
 import axios from "axios";
 export default {
     name: 'LoginUser',
+    emits: ["login"],
     data(){
         return {
             showPassword: false,
@@ -40,6 +41,7 @@ export default {
                 username: '',
                 password: '',
                 location: '',
+                deviceId: '',
             },
             adminInfo:{
                 groupcode: '',
@@ -60,15 +62,38 @@ export default {
         toggleShow(){
             this.showPassword = !this.showPassword;
         },
-        submitform(){
-            // This has to be changed
-            const url = `https://wizapp.in/MirrorServiceDetails/api/GetMirrorServiceDetails?cEmailAdd=${this.email}`;
-            axios.get(url)
+        async submitform(){
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                console.log("enumerateDevices() not supported.");
+            }
+
+            try{
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                this.form.deviceId = devices[0].groupId;
+            }catch(error){
+                alert(error.name + ": " + error.message);
+                return;
+            }
+
+            const url = `https://wizapp.in/RestMirrorService/api/V1/ValidateLogin`;
+            const params = {
+                cuser: this.form.username,
+                cPassword: this.form.password,
+                cDeviceid: this.form.deviceId.slice(0,15),
+                GroupCode: this.adminInfo.groupcode,
+                LocationId: this.form.location,
+            }
+            axios.get(url, {params})
             .then((response) => {
-                console.log(response);
+                const data = response.data.result[0];
+                localStorage.setItem("data",JSON.stringify({...this.adminInfo,auth_token: data.AUTHTOKEN,deviceId: data.DEVICEID}));
+                this.$emit('login');
             })
             .catch((error) => {
-                console.log(error);
+                alert(error.message);
+                this.form.username = '';
+                this.form.password = '';
+                this.form.location = '';
             });
         }
     }

@@ -24,14 +24,16 @@ export default {
     inject: ['adminLogin'],
     methods: {
         submitform(){
-            const url = `https://wizapp.in/MirrorServiceDetails/api/GetMirrorServiceDetails?cEmailAdd=${this.email}`;
-            axios.get(url)
+            const url = `https://wizapp.in/MirrorServiceDetails/api/GetMirrorServiceDetails`;
+            const params = {
+                cEmailAdd: this.email,
+            }
+            axios.get(url, {params})
             .then((response) => {
                 localStorage.setItem("data",JSON.stringify(response.data.datalist[0]));
                 this.adminLogin();
             })
-            .catch((error) => {
-                console.log(error);
+            .catch(() => {
                 alert("Please try again with correct email");
                 this.email = "";
             });

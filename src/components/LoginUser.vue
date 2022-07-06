@@ -1,6 +1,6 @@
 <template>
   <div class="info">
-    <p>Group Code: {{adminInfo.groupcode}}</p>
+    <p>Group Code: {{adminInfo.GroupCode}}</p>
     <p>IP Address: {{adminInfo.ipAddress}}</p>
     <p>HO Location ID: {{adminInfo.locationId}}</p>
     <p>Location Alias: {{adminInfo.locationAlias}}</p>
@@ -44,7 +44,7 @@ export default {
                 deviceId: '',
             },
             adminInfo:{
-                groupcode: '',
+                GroupCode: '',
                 ipAddress: '',
                 locationId: '',
                 locationAlias: '00',
@@ -54,7 +54,7 @@ export default {
     mounted(){
         let data = localStorage.getItem("data");
         data = JSON.parse(data);
-        this.adminInfo.groupcode = data["GroupCode"];
+        this.adminInfo.GroupCode = data["GroupCode"];
         this.adminInfo.ipAddress = data["StaticIP"];
         this.adminInfo.locationId = data["HOLocationId"];
     },
@@ -80,7 +80,7 @@ export default {
                 cuser: this.form.username,
                 cPassword: this.form.password,
                 cDeviceid: this.form.deviceId.slice(0,15),
-                GroupCode: this.adminInfo.groupcode,
+                GroupCode: this.adminInfo.GroupCode,
                 LocationId: this.form.location,
             }
             axios.get(url, {params})
